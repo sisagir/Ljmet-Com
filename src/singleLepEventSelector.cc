@@ -729,7 +729,19 @@ bool singleLepEventSelector::operator()( edm::EventBase const & event, pat::strb
                         else break; // fail
 		    }
 		    else {
-                        if ( mbPar["muon_selector_medium"] && (*_imu).isMediumMuon() ){ }
+                        //if ( mbPar["muon_selector_medium"] && (*_imu).isMediumMuon() ){ }
+                        // *!*!*! TEMPORARY FOR ICHEP, RESULT OF DECREASED EFFICIENCY FROM HIP !*!*!*
+                        bool ismediummuon = false;
+                        if ( mbPar["muon_selector_medium"] ){ 
+                            bool goodGlob = (*_imu).isGlobalMuon() && 
+                                (*_imu).globalTrack()->normalizedChi2() < 3 && 
+                                (*_imu).combinedQuality().chi2LocalPosition < 12 && 
+                                (*_imu).combinedQuality().trkKink < 20; 
+                            ismediummuon = (*_imu).isLooseMuon() &&
+                                (*_imu).innerTrack()->validFraction() > 0.49 && 
+                                (*_imu).segmentCompatibility() > (goodGlob ? 0.303 : 0.451); 
+                        }
+                        if ( mbPar["muon_selector_medium"] && ismediummuon ) { }
                         else if ( !mbPar["muon_selector_medium"] && (*_imu).isTightMuon(*mvSelPVs[0]) ){ }
 		        else break; // fail
 

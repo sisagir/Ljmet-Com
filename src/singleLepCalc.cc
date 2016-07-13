@@ -376,6 +376,14 @@ int singleLepCalc::AnalyzeEvent(edm::EventBase const & event, BaseEventSelector 
                 vGenLep.push_back(tmpLV);
 	    }
 
+            bool goodGlob = (*imu)->isGlobalMuon() && 
+                (*imu)->globalTrack()->normalizedChi2() < 3 && 
+                (*imu)->combinedQuality().chi2LocalPosition < 12 && 
+                (*imu)->combinedQuality().trkKink < 20; 
+            bool ismediummuon = (*imu)->isLooseMuon() &&
+                (*imu)->innerTrack()->validFraction() > 0.49 && 
+                (*imu)->segmentCompatibility() > (goodGlob ? 0.303 : 0.451); 
+
             //charge
             muCharge.push_back((*imu)->charge());
             // 4-std::vector 
@@ -389,7 +397,7 @@ int singleLepCalc::AnalyzeEvent(edm::EventBase const & event, BaseEventSelector 
             muInnerPhi    . push_back((*imu)->innerTrack()->phi());
 
             muIsTight.push_back((*imu)->isTightMuon(goodPVs.at(0)));
-            muIsMedium.push_back((*imu)->isMediumMuon());
+            muIsMedium.push_back(ismediummuon);
             muIsLoose.push_back((*imu)->isLooseMuon());
 
             muGlobal.push_back(((*imu)->isGlobalMuon()<<2)+(*imu)->isTrackerMuon());

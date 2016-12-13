@@ -890,14 +890,14 @@ int singleLepCalc::AnalyzeEvent(edm::EventBase const & event, BaseEventSelector 
 	if(abs(rawJet.eta()) <= 2.7){
 	  looseJetID = (rawJet.neutralHadronEnergyFraction() < 0.99 && 
 			rawJet.neutralEmEnergyFraction() < 0.99 && 
-			(rawJet.chargedMultiplicity()+rawJet.neutralMultiplicity()) > 0) && 
+			(rawJet.chargedMultiplicity()+rawJet.neutralMultiplicity()) > 1) && 
 	    ((abs(rawJet.eta()) <= 2.4 && 
 	      rawJet.chargedHadronEnergyFraction() > 0 && 
 	      rawJet.chargedEmEnergyFraction() < 0.99 && 
 	      rawJet.chargedMultiplicity() > 0) || 
 	     abs(rawJet.eta()) > 2.4);
 	}else if(abs(rawJet.eta()) <= 3.0){
-	  looseJetID = rawJet.neutralEmEnergyFraction() < 0.9 && rawJet.neutralMultiplicity() > 2;
+	  looseJetID = rawJet.neutralEmEnergyFraction() > 0.01 && rawJet.neutralHadronEnergyFraction() < 0.98 && rawJet.neutralMultiplicity() > 2;
 	}else{
 	  looseJetID = rawJet.neutralEmEnergyFraction() < 0.9 && rawJet.neutralMultiplicity() > 10;
 	}

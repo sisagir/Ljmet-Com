@@ -407,6 +407,7 @@ int JetSubCalc::AnalyzeEvent(edm::EventBase const & event, BaseEventSelector * s
     // Pruned, trimmed and filtered masses available
     std::vector<double> theJetAK8PrunedMass;
     std::vector<double> theJetAK8PrunedMassWtagUncerts;
+    std::vector<double> theJetAK8SoftDropMassWtagUncerts;
     std::vector<double> theJetAK8SoftDropMass;
     
     // n-subjettiness variables tau1, tau2, and tau3 available
@@ -464,15 +465,17 @@ int JetSubCalc::AnalyzeEvent(edm::EventBase const & event, BaseEventSelector * s
 
       pat::Jet rawJet = ijet->correctedJet(0);
       bool looseJetID = false;
-      if(abs(rawJet.eta()) <= 3.0){
+      if(abs(rawJet.eta()) <= 2.7){
 	looseJetID = (rawJet.neutralHadronEnergyFraction() < 0.99 && 
 		      rawJet.neutralEmEnergyFraction() < 0.99 && 
-		      (rawJet.chargedMultiplicity()+rawJet.neutralMultiplicity()) > 0) && 
+		      (rawJet.chargedMultiplicity()+rawJet.neutralMultiplicity()) > 1) && 
 	  ((abs(rawJet.eta()) <= 2.4 && 
 	    rawJet.chargedHadronEnergyFraction() > 0 && 
 	    rawJet.chargedEmEnergyFraction() < 0.99 && 
 	    rawJet.chargedMultiplicity() > 0) || 
 	   abs(rawJet.eta()) > 2.4);
+      }else if(abs(rawJet.eta()) <= 3.0){
+	looseJetID = rawJet.neutralEmEnergyFraction() > 0.01 && rawJet.neutralHadronEnergyFraction() < 0.98 && rawJet.neutralMultiplicity() > 2;
       }else{
 	looseJetID = rawJet.neutralEmEnergyFraction() < 0.9 && rawJet.neutralMultiplicity() > 10;
       }
@@ -540,9 +543,9 @@ int JetSubCalc::AnalyzeEvent(edm::EventBase const & event, BaseEventSelector * s
 	  Variation JERcentral = Variation::NOMINAL;
 	  Variation JERshifted = Variation::UP;
 	  if(JERdn) JERshifted = Variation::DOWN;	  
-	  // JetWTagging TWiki: 76X JMR for pruned mass + nsubjettiness, resolution scale factor = 1
+	  // JetWTagging TWiki: 80X JMR for pruned mass + nsubjettiness, resolution scale factor = 1.07
 	  // uncertainty is 10.3% within eta 2.5, JER #oplus 10.3% outside
-	  double factor_pruned = 0.0;
+	  double factor_pruned = 0.07;
 	  double uncert = fabs(resolution_SF.getScaleFactor(parameters,JERcentral) - resolution_SF.getScaleFactor(parameters,JERshifted));
 	  double uncert_pruned = 0.103;
 	  if(fabs(l2l3jet.eta()) > 2.5) uncert_pruned = sqrt(uncert*uncert + 0.103*0.103);
@@ -635,6 +638,7 @@ int JetSubCalc::AnalyzeEvent(edm::EventBase const & event, BaseEventSelector * s
       theJetAK8PrunedMass  .push_back(thePrunedMass);
       theJetAK8SoftDropMass.push_back(theSoftDropMass);
       theJetAK8PrunedMassWtagUncerts.push_back(thePrunedMass*ptscale_pruned*unc_pruned/unc);
+      theJetAK8SoftDropMassWtagUncerts.push_back(theSoftDropMass*ptscale_pruned*unc_pruned/unc);
       
       theJetAK8NjettinessTau1.push_back(theNjettinessTau1);
       theJetAK8NjettinessTau2.push_back(theNjettinessTau2);
@@ -749,6 +753,7 @@ int JetSubCalc::AnalyzeEvent(edm::EventBase const & event, BaseEventSelector * s
 
     SetValue("theJetAK8PrunedMass",   theJetAK8PrunedMass);
     SetValue("theJetAK8PrunedMassWtagUncerts",   theJetAK8PrunedMassWtagUncerts);
+    SetValue("theJetAK8SoftDropMassWtagUncerts",   theJetAK8SoftDropMassWtagUncerts);
     SetValue("theJetAK8SoftDropMass", theJetAK8SoftDropMass);
     
     SetValue("theJetAK8NjettinessTau1", theJetAK8NjettinessTau1);

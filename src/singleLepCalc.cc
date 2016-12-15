@@ -222,6 +222,7 @@ int singleLepCalc::AnalyzeEvent(edm::EventBase const & event, BaseEventSelector 
     std::map<std::string, unsigned int>         const & mSelTriggersEl = selector->GetSelectedTriggersEl();
     std::map<std::string, unsigned int>         const & mSelMCTriggersMu = selector->GetSelectedMCTriggersMu();
     std::map<std::string, unsigned int>         const & mSelTriggersMu = selector->GetSelectedTriggersMu();
+    bool                                        const & bIsTau = selector->GetIsTau();
 
     std::vector<edm::Ptr<pat::Muon> > vSelMuons;
     std::vector<edm::Ptr<pat::Electron> > vSelElectrons;
@@ -281,7 +282,7 @@ int singleLepCalc::AnalyzeEvent(edm::EventBase const & event, BaseEventSelector 
     SetValue("dataE", dataE);
     SetValue("dataM", dataM);
 
-
+	SetValue("isTau", bIsTau);
  
     // Trigger
     std::vector<std::string> vsSelMCTriggersEl, vsSelTriggersEl, vsSelMCTriggersMu, vsSelTriggersMu;

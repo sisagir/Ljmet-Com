@@ -420,6 +420,8 @@ void singleLepEventSelector::BeginJob( std::map<std::string, edm::ParameterSet c
 
 bool singleLepEventSelector::operator()( edm::EventBase const & event, pat::strbitset & ret)
 {
+    BaseEventSelector::JECbyIOV(event); 
+    
     pat::strbitset retJet            = jetSel_->getBitTemplate();
     pat::strbitset retMuon           = muonSel_->getBitTemplate();
     pat::strbitset retLooseMuon      = looseMuonSel_->getBitTemplate();
@@ -991,36 +993,41 @@ bool singleLepEventSelector::operator()( edm::EventBase const & event, pat::strb
         // loop over taus
 
         int _n_taus  = 0;
+        mbIsTau = 0;
         if (mbPar["debug"]) std::cout<<"start tau cuts..."<<std::endl;
-
-        if ( mbPar["tau_veto"] ) {
-            //get electrons
-            event.getByLabel( mtPar["tau_collection"], mhTaus );      
-
-            for (std::vector<pat::Tau>::const_iterator _itau = mhTaus->begin(); _itau != mhTaus->end(); _itau++){
+        
+        event.getByLabel( mtPar["tau_collection"], mhTaus );
+        
+        for (std::vector<pat::Tau>::const_iterator _itau = mhTaus->begin(); _itau != mhTaus->end(); _itau++){
 
 	      while(1){
 
-		//Tau cuts hardcoded here	
-		if(_itau->tauID("byMediumCombinedIsolationDeltaBetaCorr3Hits")){}
-		else break;
+			//Tau cuts hardcoded here	
+			if(_itau->tauID("decayModeFindingNewDMs")){}
+			else break;
+			
+			//if(_itau->tauID("byMediumCombinedIsolationDeltaBetaCorr3Hits")){}
+			if(_itau->tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits")){}
+			else break;
 		
-		if(_itau->tauID("againstElectronTightMVA5")){}
-		else break;
+			//if(_itau->tauID("againstElectronTightMVA5")){}
+			if(_itau->tauID("againstElectronTightMVA6")){}
+			else break;
 		
-		if(_itau->tauID("againstMuonTight3")){}
-		else break;
+			//if(_itau->tauID("againstMuonTight3")){}
+			if(_itau->tauID("againstMuonLoose3")){}
+			else break;
 		
-		if(_itau->pt() > 20 && fabs(_itau->eta()) < 2.4 ){}
-		else break;
+			if(_itau->pt() > 20 && fabs(_itau->eta()) < 2.4 ){}
+			else break;
 		
-		++_n_taus;
-		break;
+			++_n_taus;
+			mbIsTau = 1;
+			break;
 		
 	      }
 	    }
 	    
-	}
         if (mbPar["debug"]) std::cout<<"finish tau cuts..."<<std::endl;
         
 	//
@@ -1357,7 +1364,7 @@ bool singleLepEventSelector::operator()( edm::EventBase const & event, pat::strb
         if( NoSecondLepton || ignoreCut("Second lepton veto") ) passCut(ret, "Second lepton veto");
         else break;
         
-        if( _n_taus == 0 ) passCut(ret, "Tau veto");
+        if( _n_taus == 0 || !mbPar["tau_veto"] ) passCut(ret, "Tau veto");
         else break;
         
         if (mbPar["debug"]) std::cout<<"finish lepton cuts..."<<std::endl;

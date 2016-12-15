@@ -77,6 +77,7 @@ public:
 
     }
     virtual void AnalyzeEvent( edm::EventBase const & event, LjmetEventContent & ec ) { }
+    virtual void JECbyIOV(edm::EventBase const & event);
     std::string GetName() { return mName; }
     /// Evaluates a signed perp components of v1 relative to v2. The sign is defined by Phi
     double GetPerp(TVector3 & v1, TVector3 & v2);
@@ -111,6 +112,7 @@ public:
     double const & GetTestValue() const { return mTestValue; }
     void SetMc(bool isMc) { mbIsMc = isMc; }
     bool IsMc() { return mbIsMc; }
+    bool const & GetIsTau() { return mbIsTau; }
     
     // LJMET event content setters
     void Init( void );
@@ -174,6 +176,7 @@ protected:
     std::string mName;
     std::string mLegend;
     bool mbIsMc;
+    bool mbIsTau;
     
 private:
     int mNCorrJets;
